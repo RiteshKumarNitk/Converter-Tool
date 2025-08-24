@@ -3,7 +3,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
+// import 'package:open_file/open_file.dart';
 
 class MergePDFPage extends StatefulWidget {
   const MergePDFPage({super.key});
@@ -91,7 +92,7 @@ class _MergePDFPageState extends State<MergePDFPage> {
       ).showSnackBar(SnackBar(content: Text('PDF saved to: $outputPath')));
 
       // Open merged PDF
-      await OpenFile.open(outputPath);
+      await OpenFilex.open(outputPath);
     } catch (e) {
       ScaffoldMessenger.of(
         context,

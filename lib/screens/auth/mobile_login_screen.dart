@@ -10,6 +10,8 @@ import 'package:pdf_convertor/services/auth_service.dart';
 class MobileLoginScreen extends StatelessWidget {
   final TextEditingController mobileController = TextEditingController();
 
+  MobileLoginScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

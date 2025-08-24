@@ -1,104 +1,143 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:reorderables/reorderables.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:pdf/pdf.dart'; // Needed for PdfPageFormat
 import '../../services/pdf_service.dart';
 
-class ImageToPdfScreen extends StatefulWidget {
-  const ImageToPdfScreen({Key? key}) : super(key: key);
-
+class ImageToPDFScreen extends StatefulWidget {
   @override
-  State<ImageToPdfScreen> createState() => _ImageToPdfScreenState();
+  _ImageToPDFScreenState createState() => _ImageToPDFScreenState();
 }
 
-class _ImageToPdfScreenState extends State<ImageToPdfScreen> {
-  final List<File> _selectedImages = [];
-  bool _isLoading = false;
+class _ImageToPDFScreenState extends State<ImageToPDFScreen> {
+  final ImagePicker _picker = ImagePicker();
+  List<File> _images = [];
+  String _pageSize = "A4";
+  String _orientation = "Portrait";
 
+  /// Pick multiple images
   Future<void> _pickImages() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickMultiImage();
-    if (picked != null) {
+    final picked = await _picker.pickMultiImage();
+    if (picked.isNotEmpty) {
       setState(() {
-        _selectedImages.addAll(picked.map((x) => File(x.path)));
+        _images.addAll(picked.map((x) => File(x.path)));
       });
     }
   }
 
-  Future<void> _createPDF() async {
-    if (_selectedImages.isEmpty) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final pdfFile = await PDFService.generatePDF(_selectedImages);
-      await OpenFilex.open(pdfFile.path);
-    } catch (e) {
+  /// Generate PDF
+  Future<void> _generatePDF() async {
+    if (_images.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
+        SnackBar(content: Text("Please add images first")),
       );
+      return;
     }
 
-    setState(() => _isLoading = false);
+    // ✅ Map dropdown to PdfPageFormat
+    PdfPageFormat format =
+        _pageSize == "A4" ? PdfPageFormat.a4 : PdfPageFormat.letter;
+    bool landscape = _orientation == "Landscape";
+
+    final pdfFile = await PDFService.generatePDF(
+      images: _images, // ✅ FIXED here
+      pageFormat: format,
+      landscape: landscape,
+    );
+
+    /// Share PDF
+    await Share.shareXFiles([XFile(pdfFile.path)], text: "Here’s your PDF!");
+  }
+
+  /// Reorder logic
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      final item = _images.removeAt(oldIndex);
+      _images.insert(newIndex, item);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Image to PDF")),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            ElevatedButton.icon(
-              onPressed: _pickImages,
-              icon: const Icon(Icons.add_photo_alternate),
-              label: const Text("Pick Images"),
+      appBar: AppBar(
+        title: Text("Image → PDF"),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.picture_as_pdf),
+            onPressed: _generatePDF,
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _pickImages,
+        child: Icon(Icons.add),
+      ),
+      body: Column(
+        children: [
+          /// Page options
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                DropdownButton<String>(
+                  value: _pageSize,
+                  items: ["A4", "Letter"].map((e) {
+                    return DropdownMenuItem(value: e, child: Text("Size: $e"));
+                  }).toList(),
+                  onChanged: (val) => setState(() => _pageSize = val!),
+                ),
+                SizedBox(width: 16),
+                DropdownButton<String>(
+                  value: _orientation,
+                  items: ["Portrait", "Landscape"].map((e) {
+                    return DropdownMenuItem(
+                        value: e, child: Text("Orientation: $e"));
+                  }).toList(),
+                  onChanged: (val) => setState(() => _orientation = val!),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
+          ),
 
-            // Show selected images
-            Expanded(
-              child: _selectedImages.isEmpty
-                  ? const Center(child: Text("No images selected"))
-                  : GridView.builder(
-                      itemCount: _selectedImages.length,
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        mainAxisSpacing: 5,
-                        crossAxisSpacing: 5,
-                      ),
-                      itemBuilder: (_, i) => Stack(
+          /// Reorderable list of images
+          Expanded(
+            child: _images.isEmpty
+                ? Center(child: Text("No images added"))
+                : ReorderableWrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    onReorder: _onReorder,
+                    children: _images.map((file) {
+                      return Stack(
+                        key: ValueKey(file),
                         children: [
-                          Image.file(_selectedImages[i], fit: BoxFit.cover),
+                          Image.file(file,
+                              width: 100, height: 120, fit: BoxFit.cover),
                           Positioned(
                             right: 0,
                             top: 0,
-                            child: IconButton(
-                              icon: const Icon(Icons.close, color: Colors.red),
-                              onPressed: () {
+                            child: GestureDetector(
+                              onTap: () {
                                 setState(() {
-                                  _selectedImages.removeAt(i);
+                                  _images.remove(file);
                                 });
                               },
+                              child: Container(
+                                color: Colors.black54,
+                                child: Icon(Icons.close,
+                                    color: Colors.white, size: 18),
+                              ),
                             ),
-                          ),
+                          )
                         ],
-                      ),
-                    ),
-            ),
-
-            const SizedBox(height: 10),
-
-            _isLoading
-                ? const CircularProgressIndicator()
-                : ElevatedButton.icon(
-                    onPressed: _createPDF,
-                    icon: const Icon(Icons.picture_as_pdf),
-                    label: const Text("Convert to PDF"),
+                      );
+                    }).toList(),
                   ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

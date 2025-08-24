@@ -4,6 +4,8 @@ import 'package:pdf_convertor/screens/converters/image_to_pdf_screen.dart';
 
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -164,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (tool["title"] == "Image to PDF") {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ImageToPdfScreen()),
+            MaterialPageRoute(builder: (_) => ImageToPDFScreen()), 
           );
         }
         // You can add other tools here similarly

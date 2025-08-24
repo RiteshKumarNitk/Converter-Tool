@@ -8,7 +8,7 @@ class OtpScreen extends StatelessWidget {
   final TextEditingController otpController = TextEditingController();
   final String verificationId;
 
-  OtpScreen({required this.verificationId});
+  OtpScreen({super.key, required this.verificationId});
 
   @override
   Widget build(BuildContext context) {

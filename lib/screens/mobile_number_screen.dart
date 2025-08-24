@@ -5,6 +5,8 @@ import '../utils/app_routes.dart';
 class MobileNumberScreen extends StatelessWidget {
   final TextEditingController mobileController = TextEditingController();
 
+  MobileNumberScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
