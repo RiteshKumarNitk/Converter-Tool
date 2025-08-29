@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pdf_convertor/screens/converters/image_to_pdf_screen.dart';
-
-
-
+import 'package:pdf_convertor/screens/converters/pdf_password_screen.dart';
+import 'package:pdf_convertor/screens/converters/pdf_to_text_screen.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -23,25 +22,79 @@ class _HomeScreenState extends State<HomeScreen> {
   // Tools by category
   final Map<String, List<Map<String, dynamic>>> toolsByCategory = {
     "Image": [
-      {"title": "Image to PDF", "subtitle": "Convert images into PDF", "icon": Icons.image},
-      {"title": "JPG to PNG", "subtitle": "Convert JPG to PNG", "icon": Icons.image},
+      {
+        "title": "Image to PDF",
+        "subtitle": "Convert images into PDF",
+        "icon": Icons.image,
+      },
+      {
+        "title": "JPG to PNG",
+        "subtitle": "Convert JPG to PNG",
+        "icon": Icons.image,
+      },
     ],
-    "PDF": [
-      {"title": "PDF to Word", "subtitle": "Convert PDF to DOCX", "icon": Icons.picture_as_pdf},
-      {"title": "Compress PDF", "subtitle": "Reduce PDF file size", "icon": Icons.picture_as_pdf},
-      {"title": "Merge PDF", "subtitle": "Combine multiple PDFs", "icon": Icons.picture_as_pdf},
-    ],
+"PDF": [
+  {
+    "title": "PDF to Word",
+    "subtitle": "Convert PDF to DOCX",
+    "icon": Icons.picture_as_pdf,
+  },
+  {
+    "title": "Compress PDF",
+    "subtitle": "Reduce PDF file size",
+    "icon": Icons.picture_as_pdf,
+  },
+  {
+    "title": "Merge PDF",
+    "subtitle": "Combine multiple PDFs",
+    "icon": Icons.picture_as_pdf,
+  },
+  {
+    "title": "Password Protect PDF",
+    "subtitle": "Add or remove PDF password",
+    "icon": Icons.lock,
+  },
+  {
+    "title": "PDF to Text",
+    "subtitle": "Extract text from PDF",
+    "icon": Icons.text_snippet,
+  }, // ✅ New tool
+],
     "Video": [
-      {"title": "Video to MP3", "subtitle": "Extract audio from video", "icon": Icons.videocam},
-      {"title": "MP4 to AVI", "subtitle": "Convert video format", "icon": Icons.videocam},
+      {
+        "title": "Video to MP3",
+        "subtitle": "Extract audio from video",
+        "icon": Icons.videocam,
+      },
+      {
+        "title": "MP4 to AVI",
+        "subtitle": "Convert video format",
+        "icon": Icons.videocam,
+      },
     ],
     "Audio": [
-      {"title": "MP3 to WAV", "subtitle": "Convert audio formats", "icon": Icons.music_note},
-      {"title": "Audio Cutter", "subtitle": "Trim your audio files", "icon": Icons.music_note},
+      {
+        "title": "MP3 to WAV",
+        "subtitle": "Convert audio formats",
+        "icon": Icons.music_note,
+      },
+      {
+        "title": "Audio Cutter",
+        "subtitle": "Trim your audio files",
+        "icon": Icons.music_note,
+      },
     ],
     "Text": [
-      {"title": "Text to PDF", "subtitle": "Save text as PDF", "icon": Icons.text_snippet},
-      {"title": "Text to Speech", "subtitle": "Convert text to audio", "icon": Icons.text_snippet},
+      {
+        "title": "Text to PDF",
+        "subtitle": "Save text as PDF",
+        "icon": Icons.text_snippet,
+      },
+      {
+        "title": "Text to Speech",
+        "subtitle": "Convert text to audio",
+        "icon": Icons.text_snippet,
+      },
     ],
   };
 
@@ -85,7 +138,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             // 🏷️ Categories
-            const Text("Categories", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Text(
+              "Categories",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             SizedBox(
               height: 60,
@@ -103,16 +159,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isActive ? Colors.orange : Colors.white,
                         borderRadius: BorderRadius.circular(30),
-                        border: Border.all(color: Colors.orange.withOpacity(0.4)),
+                        border: Border.all(
+                          color: Colors.orange.withOpacity(0.4),
+                        ),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(cat["icon"], size: 20, color: isActive ? Colors.white : Colors.orange),
+                          Icon(
+                            cat["icon"],
+                            size: 20,
+                            color: isActive ? Colors.white : Colors.orange,
+                          ),
                           const SizedBox(width: 6),
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +195,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                 "${toolsByCategory[cat["name"]]?.length ?? 0} tools",
                                 style: TextStyle(
                                   fontSize: 10,
-                                  color: isActive ? Colors.white70 : Colors.black54,
+                                  color: isActive
+                                      ? Colors.white70
+                                      : Colors.black54,
                                 ),
                               ),
                             ],
@@ -146,53 +213,83 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 20),
 
             // 🛠️ Tools grid
-            Text("$activeCategory Tools", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              "$activeCategory Tools",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
             GridView.builder(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  itemCount: tools.length,
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: 1.2,
-    crossAxisSpacing: 12,
-    mainAxisSpacing: 12,
-  ),
-  itemBuilder: (context, index) {
-    var tool = tools[index];
-    return InkWell(
-      onTap: () {
-        // Navigate based on tool title
-        if (tool["title"] == "Image to PDF") {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => ImageToPDFScreen()), 
-          );
-        }
-        // You can add other tools here similarly
-      },
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(tool["icon"], size: 28, color: Colors.blue),
-            const Spacer(),
-            Text(tool["title"], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
-            const SizedBox(height: 4),
-            Text(tool["subtitle"], style: const TextStyle(fontSize: 12, color: Colors.grey)),
-          ],
-        ),
-      ),
-    );
-  },
-),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: tools.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemBuilder: (context, index) {
+                var tool = tools[index];
+                return InkWell(
+                  onTap: () {
+                    // Navigate based on tool title
+                    if (tool["title"] == "Image to PDF") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => ImageToPDFScreen()),
+                      );
+                    } else if (tool["title"] == "Password Protect PDF") {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PdfPasswordScreen(),
+                        ), // ✅ navigate to new screen
+                      );
+                    }
+                    else if (tool["title"] == "PDF to Text") {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => const PdfToTextScreen()),
+  );
+}
 
+                    // You can add other tools here similarly
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black12, blurRadius: 4),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(tool["icon"], size: 28, color: Colors.blue),
+                        const Spacer(),
+                        Text(
+                          tool["title"],
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          tool["subtitle"],
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
       ),

@@ -3,6 +3,7 @@ import '../screens/auth/mobile_login_screen.dart';
 import '../screens/auth/otp_screen.dart';
 import '../screens/main/main_screen.dart';
 import '../screens/splash_screen.dart';
+import 'package:pdf_convertor/screens/converters/pdf_password_screen.dart';
 
 class AppRoutes {
   static const String splash = '/splash';
